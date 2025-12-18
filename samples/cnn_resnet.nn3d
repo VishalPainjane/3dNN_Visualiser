@@ -1,0 +1,327 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "name": "CNN Image Classifier",
+    "description": "Convolutional Neural Network for image classification",
+    "framework": "pytorch",
+    "created": "2024-12-17T10:00:00Z",
+    "tags": ["cnn", "classification", "imagenet"],
+    "inputShape": [1, 3, 224, 224],
+    "outputShape": [1, 1000],
+    "totalParams": 11689512,
+    "trainableParams": 11689512
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "input",
+        "type": "input",
+        "name": "Input Image",
+        "outputShape": [1, 3, 224, 224],
+        "depth": 0
+      },
+      {
+        "id": "conv1",
+        "type": "conv2d",
+        "name": "conv1",
+        "params": {
+          "inChannels": 3,
+          "outChannels": 64,
+          "kernelSize": [7, 7],
+          "stride": [2, 2],
+          "padding": [3, 3],
+          "bias": false
+        },
+        "inputShape": [1, 3, 224, 224],
+        "outputShape": [1, 64, 112, 112],
+        "depth": 1,
+        "group": "stem"
+      },
+      {
+        "id": "bn1",
+        "type": "batchNorm2d",
+        "name": "bn1",
+        "params": {
+          "eps": 1e-5,
+          "momentum": 0.1
+        },
+        "inputShape": [1, 64, 112, 112],
+        "outputShape": [1, 64, 112, 112],
+        "depth": 2,
+        "group": "stem"
+      },
+      {
+        "id": "relu1",
+        "type": "relu",
+        "name": "ReLU",
+        "inputShape": [1, 64, 112, 112],
+        "outputShape": [1, 64, 112, 112],
+        "depth": 3,
+        "group": "stem"
+      },
+      {
+        "id": "maxpool",
+        "type": "maxPool2d",
+        "name": "MaxPool",
+        "params": {
+          "kernelSize": [3, 3],
+          "stride": [2, 2],
+          "padding": [1, 1]
+        },
+        "inputShape": [1, 64, 112, 112],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 4,
+        "group": "stem"
+      },
+      {
+        "id": "layer1_conv1",
+        "type": "conv2d",
+        "name": "layer1.0.conv1",
+        "params": {
+          "inChannels": 64,
+          "outChannels": 64,
+          "kernelSize": [3, 3],
+          "stride": [1, 1],
+          "padding": [1, 1],
+          "bias": false
+        },
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 5,
+        "group": "layer1"
+      },
+      {
+        "id": "layer1_bn1",
+        "type": "batchNorm2d",
+        "name": "layer1.0.bn1",
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 6,
+        "group": "layer1"
+      },
+      {
+        "id": "layer1_relu1",
+        "type": "relu",
+        "name": "ReLU",
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 7,
+        "group": "layer1"
+      },
+      {
+        "id": "layer1_conv2",
+        "type": "conv2d",
+        "name": "layer1.0.conv2",
+        "params": {
+          "inChannels": 64,
+          "outChannels": 64,
+          "kernelSize": [3, 3],
+          "stride": [1, 1],
+          "padding": [1, 1],
+          "bias": false
+        },
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 8,
+        "group": "layer1"
+      },
+      {
+        "id": "layer1_bn2",
+        "type": "batchNorm2d",
+        "name": "layer1.0.bn2",
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 9,
+        "group": "layer1"
+      },
+      {
+        "id": "layer1_add",
+        "type": "add",
+        "name": "Residual Add",
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 64, 56, 56],
+        "depth": 10,
+        "group": "layer1"
+      },
+      {
+        "id": "layer2_conv1",
+        "type": "conv2d",
+        "name": "layer2.0.conv1",
+        "params": {
+          "inChannels": 64,
+          "outChannels": 128,
+          "kernelSize": [3, 3],
+          "stride": [2, 2],
+          "padding": [1, 1],
+          "bias": false
+        },
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 11,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_bn1",
+        "type": "batchNorm2d",
+        "name": "layer2.0.bn1",
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 12,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_relu1",
+        "type": "relu",
+        "name": "ReLU",
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 13,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_conv2",
+        "type": "conv2d",
+        "name": "layer2.0.conv2",
+        "params": {
+          "inChannels": 128,
+          "outChannels": 128,
+          "kernelSize": [3, 3],
+          "stride": [1, 1],
+          "padding": [1, 1],
+          "bias": false
+        },
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 14,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_bn2",
+        "type": "batchNorm2d",
+        "name": "layer2.0.bn2",
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 15,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_downsample",
+        "type": "conv2d",
+        "name": "layer2.0.downsample",
+        "params": {
+          "inChannels": 64,
+          "outChannels": 128,
+          "kernelSize": [1, 1],
+          "stride": [2, 2],
+          "bias": false
+        },
+        "inputShape": [1, 64, 56, 56],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 16,
+        "group": "layer2"
+      },
+      {
+        "id": "layer2_add",
+        "type": "add",
+        "name": "Residual Add",
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 28, 28],
+        "depth": 17,
+        "group": "layer2"
+      },
+      {
+        "id": "avgpool",
+        "type": "globalAvgPool",
+        "name": "Global Average Pool",
+        "inputShape": [1, 128, 28, 28],
+        "outputShape": [1, 128, 1, 1],
+        "depth": 18
+      },
+      {
+        "id": "flatten",
+        "type": "flatten",
+        "name": "Flatten",
+        "inputShape": [1, 128, 1, 1],
+        "outputShape": [1, 128],
+        "depth": 19
+      },
+      {
+        "id": "fc",
+        "type": "linear",
+        "name": "fc",
+        "params": {
+          "inFeatures": 128,
+          "outFeatures": 1000,
+          "bias": true
+        },
+        "inputShape": [1, 128],
+        "outputShape": [1, 1000],
+        "depth": 20
+      },
+      {
+        "id": "output",
+        "type": "output",
+        "name": "Output",
+        "inputShape": [1, 1000],
+        "depth": 21
+      }
+    ],
+    "edges": [
+      { "source": "input", "target": "conv1" },
+      { "source": "conv1", "target": "bn1" },
+      { "source": "bn1", "target": "relu1" },
+      { "source": "relu1", "target": "maxpool" },
+      { "source": "maxpool", "target": "layer1_conv1" },
+      { "source": "layer1_conv1", "target": "layer1_bn1" },
+      { "source": "layer1_bn1", "target": "layer1_relu1" },
+      { "source": "layer1_relu1", "target": "layer1_conv2" },
+      { "source": "layer1_conv2", "target": "layer1_bn2" },
+      { "source": "layer1_bn2", "target": "layer1_add" },
+      { "source": "maxpool", "target": "layer1_add" },
+      { "source": "layer1_add", "target": "layer2_conv1" },
+      { "source": "layer2_conv1", "target": "layer2_bn1" },
+      { "source": "layer2_bn1", "target": "layer2_relu1" },
+      { "source": "layer2_relu1", "target": "layer2_conv2" },
+      { "source": "layer2_conv2", "target": "layer2_bn2" },
+      { "source": "layer1_add", "target": "layer2_downsample" },
+      { "source": "layer2_bn2", "target": "layer2_add" },
+      { "source": "layer2_downsample", "target": "layer2_add" },
+      { "source": "layer2_add", "target": "avgpool" },
+      { "source": "avgpool", "target": "flatten" },
+      { "source": "flatten", "target": "fc" },
+      { "source": "fc", "target": "output" }
+    ],
+    "subgraphs": [
+      {
+        "id": "stem_group",
+        "name": "Stem",
+        "type": "sequential",
+        "nodes": ["conv1", "bn1", "relu1", "maxpool"],
+        "color": "#4CAF50"
+      },
+      {
+        "id": "layer1_group",
+        "name": "Layer 1 (ResBlock)",
+        "type": "residual",
+        "nodes": ["layer1_conv1", "layer1_bn1", "layer1_relu1", "layer1_conv2", "layer1_bn2", "layer1_add"],
+        "color": "#2196F3"
+      },
+      {
+        "id": "layer2_group",
+        "name": "Layer 2 (ResBlock)",
+        "type": "residual",
+        "nodes": ["layer2_conv1", "layer2_bn1", "layer2_relu1", "layer2_conv2", "layer2_bn2", "layer2_downsample", "layer2_add"],
+        "color": "#9C27B0"
+      }
+    ]
+  },
+  "visualization": {
+    "layout": "layered",
+    "theme": "dark",
+    "layerSpacing": 2.5,
+    "nodeScale": 1.0,
+    "showLabels": true,
+    "showEdges": true,
+    "edgeStyle": "tube"
+  }
+}
