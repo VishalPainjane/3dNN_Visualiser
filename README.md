@@ -447,7 +447,7 @@ Vizualiser wouldn't exist without these amazing projects:
 If Vizualiser helped you, please consider giving us a star!  
 It helps others discover the project.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=VishalPainjane/vizualiser&type=Date)](https://star-history.com/#VishalPainjane/vizualiser&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=VishalPainjane/3dNN_Visualiser&type=Date)](https://star-history.com/#VishalPainjane/3dNN_Visualiser&Date)
 
 ---
 
