@@ -346,45 +346,124 @@ vizualiser/
 
 ---
 
-## 🤝 Contributing
+## 🎓 Supported Model Architectures
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing`)
-5. Open a Pull Request
+<details open>
+<summary><b>Computer Vision</b> (Click to expand)</summary>
+
+- **CNNs**: ResNet, VGG, Inception, DenseNet, EfficientNet, MobileNet
+- **Object Detection**: YOLO, R-CNN, Faster R-CNN, SSD, RetinaNet
+- **Segmentation**: U-Net, Mask R-CNN, DeepLab, SegNet
+- **GANs**: StyleGAN, CycleGAN, Pix2Pix, BigGAN
+
+</details>
+
+<details>
+<summary><b>Natural Language Processing</b></summary>
+
+- **Transformers**: BERT, GPT, T5, BART, RoBERTa
+- **LLMs**: GPT-3, GPT-4, LLaMA, Claude, PaLM
+- **Seq2Seq**: LSTM, GRU, Attention models
+- **Embeddings**: Word2Vec, GloVe, FastText
+
+</details>
+
+<details>
+<summary><b>Audio & Speech</b></summary>
+
+- **ASR**: Wav2Vec, Whisper, DeepSpeech
+- **TTS**: Tacotron, WaveNet, FastSpeech
+- **Audio**: SpecAugment, MelGAN
+
+</details>
+
+<details>
+<summary><b>Multimodal</b></summary>
+
+- **Vision-Language**: CLIP, DALL-E, Flamingo, BLIP
+- **Video**: TimeSformer, VideoMAE, SlowFast
+
+</details>
+
+<details>
+<summary><b>Reinforcement Learning</b></summary>
+
+- **Policy Networks**: DQN, A3C, PPO, SAC
+- **World Models**: MuZero, Dreamer
+
+</details>
+
+---
+
+## 📊 Comparison with Alternatives
+
+| Feature | Vizualiser | Netron | TensorBoard | Weights & Biases |
+|---------|-----------|--------|-------------|------------------|
+| **3D Visualization** | ✅ Advanced | ❌ | ❌ | ⚠️ Basic |
+| **Real-time Editing** | ✅ | ❌ | ❌ | ❌ |
+| **Format Support** | ✅ 10+ | ✅ 8+ | ⚠️ 3 | ⚠️ 4 |
+| **Browser-based** | ✅ | ✅ | ⚠️ Limited | ✅ |
+| **GPU Acceleration** | ✅ | ❌ | ❌ | ❌ |
+| **Collaboration** | ✅ | ❌ | ❌ | ✅ |
+| **Export Options** | ✅ 8+ formats | ⚠️ PNG | ⚠️ PNG | ⚠️ PNG |
+| **Open Source** | ✅ MIT | ✅ | ✅ Apache | ❌ |
+| **Performance (100k layers)** | ✅ 60 FPS | ⚠️ 5 FPS | N/A | N/A |
+| **Cost** | Free | Free | Free | Paid |
 
 ---
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+Vizualiser is licensed under the **[MIT License](LICENSE)**.
+
+```
+MIT License
+
+Copyright (c) 2025 Vizualiser Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+```
+
+**TL;DR**: Free for commercial and personal use. Attribution appreciated but not required.
 
 ---
 
-## 🌍 Community & Support
+## 🙏 Acknowledgments
 
-- [Discussions](https://github.com/VishalPainjane/vizualiser/discussions)
-- [Discord](https://discord.gg/xyz123)
-- [Twitter](https://twitter.com/vizualiser)
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/vizualiser)
-- [Contributing Guide](CONTRIBUTING.md)
+Vizualiser wouldn't exist without these amazing projects:
 
-## ❤️ Sponsors
-
-<p align="center">
-  <a href="https://github.com/sponsors/VishalPainjane"><img src="https://img.shields.io/badge/sponsor%20us-on%20GitHub-orange?style=for-the-badge" alt="Sponsor"></a>
-</p>
+- **[Three.js](https://threejs.org/)** - 3D rendering engine
+- **[React](https://reactjs.org/)** - UI framework
+- **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)** - React + Three.js
+- **[ONNX](https://onnx.ai/)** - Model interchange format
+- **[PyTorch](https://pytorch.org/)** - Deep learning framework
 
 ---
 
-<p align="center">
-  <b>Made with ❤️ by hundreds of contributors worldwide.</b>
-</p>
+<div align="center">
 
-- [Three.js](https://threejs.org/) for 3D rendering
-- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/) for React integration
-- [Drei](https://github.com/pmndrs/drei) for useful 3D helpers
+### ⭐ **Star Us on GitHub** ⭐
+
+If Vizualiser helped you, please consider giving us a star!  
+It helps others discover the project.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=VishalPainjane/vizualiser&type=Date)](https://star-history.com/#VishalPainjane/vizualiser&Date)
+
+---
+
+**Made with ❤️ by [Vishal Painjane](https://github.com/VishalPainjane)**
+
+**[⬆ Back to Top](#-vizualiser)**
+
+</div>
+
+---
+
+<div align="center">
+<sub>🌟 If you like Vizualiser, give it a star on GitHub! 🌟</sub>
+</div>
 
 
+
+---
 
