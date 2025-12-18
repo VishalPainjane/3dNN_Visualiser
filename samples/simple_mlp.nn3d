@@ -1,0 +1,137 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "name": "Simple MLP",
+    "description": "A simple Multi-Layer Perceptron for MNIST classification",
+    "framework": "pytorch",
+    "created": "2024-12-17T10:00:00Z",
+    "tags": ["mlp", "classification", "mnist"],
+    "inputShape": [1, 784],
+    "outputShape": [1, 10],
+    "totalParams": 669706,
+    "trainableParams": 669706
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "input",
+        "type": "input",
+        "name": "Input",
+        "outputShape": [1, 784],
+        "depth": 0
+      },
+      {
+        "id": "fc1",
+        "type": "linear",
+        "name": "fc1",
+        "params": {
+          "inFeatures": 784,
+          "outFeatures": 512,
+          "bias": true
+        },
+        "inputShape": [1, 784],
+        "outputShape": [1, 512],
+        "depth": 1
+      },
+      {
+        "id": "relu1",
+        "type": "relu",
+        "name": "ReLU",
+        "inputShape": [1, 512],
+        "outputShape": [1, 512],
+        "depth": 2
+      },
+      {
+        "id": "dropout1",
+        "type": "dropout",
+        "name": "Dropout",
+        "params": {
+          "dropoutRate": 0.2
+        },
+        "inputShape": [1, 512],
+        "outputShape": [1, 512],
+        "depth": 3
+      },
+      {
+        "id": "fc2",
+        "type": "linear",
+        "name": "fc2",
+        "params": {
+          "inFeatures": 512,
+          "outFeatures": 256,
+          "bias": true
+        },
+        "inputShape": [1, 512],
+        "outputShape": [1, 256],
+        "depth": 4
+      },
+      {
+        "id": "relu2",
+        "type": "relu",
+        "name": "ReLU",
+        "inputShape": [1, 256],
+        "outputShape": [1, 256],
+        "depth": 5
+      },
+      {
+        "id": "dropout2",
+        "type": "dropout",
+        "name": "Dropout",
+        "params": {
+          "dropoutRate": 0.2
+        },
+        "inputShape": [1, 256],
+        "outputShape": [1, 256],
+        "depth": 6
+      },
+      {
+        "id": "fc3",
+        "type": "linear",
+        "name": "fc3",
+        "params": {
+          "inFeatures": 256,
+          "outFeatures": 10,
+          "bias": true
+        },
+        "inputShape": [1, 256],
+        "outputShape": [1, 10],
+        "depth": 7
+      },
+      {
+        "id": "softmax",
+        "type": "softmax",
+        "name": "Softmax",
+        "inputShape": [1, 10],
+        "outputShape": [1, 10],
+        "depth": 8
+      },
+      {
+        "id": "output",
+        "type": "output",
+        "name": "Output",
+        "inputShape": [1, 10],
+        "depth": 9
+      }
+    ],
+    "edges": [
+      { "source": "input", "target": "fc1", "tensorShape": [1, 784] },
+      { "source": "fc1", "target": "relu1", "tensorShape": [1, 512] },
+      { "source": "relu1", "target": "dropout1", "tensorShape": [1, 512] },
+      { "source": "dropout1", "target": "fc2", "tensorShape": [1, 512] },
+      { "source": "fc2", "target": "relu2", "tensorShape": [1, 256] },
+      { "source": "relu2", "target": "dropout2", "tensorShape": [1, 256] },
+      { "source": "dropout2", "target": "fc3", "tensorShape": [1, 256] },
+      { "source": "fc3", "target": "softmax", "tensorShape": [1, 10] },
+      { "source": "softmax", "target": "output", "tensorShape": [1, 10] }
+    ]
+  },
+  "visualization": {
+    "layout": "layered",
+    "theme": "dark",
+    "layerSpacing": 3.0,
+    "nodeScale": 1.0,
+    "showLabels": true,
+    "showEdges": true,
+    "edgeStyle": "tube"
+  }
+}
