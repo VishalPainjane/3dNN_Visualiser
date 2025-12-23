@@ -1,48 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="node1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#29b6f6;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="node2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="node3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ffb74d;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#ffa726;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <!-- Background -->
-  <rect width="100" height="100" rx="15" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="#0a0e15"/>
   
-  <!-- 3D Cube Effect - Back face -->
-  <rect x="35" y="20" width="30" height="25" rx="3" fill="url(#node1)" opacity="0.5" transform="translate(8, -8)"/>
+  <!-- Outer border -->
+  <rect x="40" y="40" width="432" height="432" fill="none" stroke="#a4fc3c" stroke-width="16" rx="32"/>
   
-  <!-- Connection lines -->
-  <path d="M50 45 L30 65" stroke="white" stroke-width="2" opacity="0.7"/>
-  <path d="M50 45 L70 65" stroke="white" stroke-width="2" opacity="0.7"/>
+  <!-- NN Letters -->
+  <g fill="#a4fc3c">
+    <!-- First N -->
+    <rect x="120" y="160" width="32" height="192"/>
+    <polygon points="152,160 152,352 184,352 184,160"/>
+    <rect x="184" y="160" width="32" height="192"/>
+    <polygon points="120,160 152,192 152,352 120,352"/>
+    
+    <!-- Second N -->
+    <rect x="280" y="160" width="32" height="192"/>
+    <polygon points="312,160 312,352 344,352 344,160"/>
+    <rect x="344" y="160" width="32" height="192"/>
+    <polygon points="280,160 312,192 312,352 280,352"/>
+  </g>
   
-  <!-- Middle node (main) -->
-  <rect x="35" y="20" width="30" height="25" rx="3" fill="url(#node1)"/>
-  
-  <!-- Bottom left node -->
-  <rect x="15" y="55" width="25" height="20" rx="3" fill="url(#node2)"/>
-  
-  <!-- Bottom right node -->
-  <rect x="60" y="55" width="25" height="20" rx="3" fill="url(#node3)"/>
-  
-  <!-- Connection lines to output -->
-  <path d="M27.5 75 L45 85" stroke="white" stroke-width="2" opacity="0.7"/>
-  <path d="M72.5 75 L55 85" stroke="white" stroke-width="2" opacity="0.7"/>
-  
-  <!-- Small connecting dots -->
-  <circle cx="50" cy="32.5" r="3" fill="white" opacity="0.8"/>
-  <circle cx="27.5" cy="65" r="2.5" fill="white" opacity="0.8"/>
-  <circle cx="72.5" cy="65" r="2.5" fill="white" opacity="0.8"/>
+  <!-- Corner accent marks -->
+  <g stroke="#a4fc3c" stroke-width="6" stroke-linecap="square">
+    <line x1="80" y1="80" x2="100" y2="80"/>
+    <line x1="80" y1="80" x2="80" y2="100"/>
+    
+    <line x1="432" y1="80" x2="412" y2="80"/>
+    <line x1="432" y1="80" x2="432" y2="100"/>
+    
+    <line x1="80" y1="432" x2="100" y2="432"/>
+    <line x1="80" y1="432" x2="80" y2="412"/>
+    
+    <line x1="432" y1="432" x2="412" y2="432"/>
+    <line x1="432" y1="432" x2="432" y2="412"/>
+  </g>
 </svg>
