@@ -12,7 +12,8 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .model_analyzer import (
@@ -1160,6 +1161,24 @@ async def delete_saved_model(model_id: int):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# Serve frontend static files if configured
+frontend_dist = os.getenv("FRONTEND_DIST_PATH", "")
+if frontend_dist and os.path.exists(frontend_dist):
+    print(f"INFO: Serving frontend from {frontend_dist}")
+    
+    # Static files mount
+    # Note: This is defined last so it doesn't catch API routes
+    app.mount("/static", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="static")
+    
+    @app.get("/{path:path}")
+    async def serve_frontend(path: str):
+        # Check if file exists in dist
+        file_path = os.path.join(frontend_dist, path)
+        if path != "" and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Fallback to index.html for SPA routing
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

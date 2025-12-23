@@ -127,14 +127,14 @@ cd 3dNN_Visualiser
 # Start with Docker Compose
 docker-compose up --build
 
-# Or use the convenience scripts:
-# Windows: docker-start.bat
-# Linux/Mac: ./docker-start.sh
+# Or use the All-in-One single image:
+docker build -t nn3d-all-in-one .
+docker run -p 8001:8000 nn3d-all-in-one
 ```
 
 Access the application:
 
-- **Frontend**: http://localhost:3000
+- **Frontend**: http://localhost:3000 (Compose) or http://localhost:8001 (Single Image)
 - **Backend API**: http://localhost:8001
 - **API Docs**: http://localhost:8001/docs
 
