@@ -20,7 +20,7 @@ services:
       - DATABASE_PATH=/app/data/models.db
       - PYTHONUNBUFFERED=1
     ports:
-      - "8000:8000"
+      - "8001:8000"
     networks:
       - nn3d-network
     healthcheck:
@@ -33,7 +33,7 @@ services:
   # React Frontend - 3D Visualization
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: nn3d-frontend
     restart: unless-stopped

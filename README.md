@@ -10,15 +10,18 @@
 -->
 <br />
 
-[![GitHub stars](https://img.shields.io/github/stars/VishalPainjane/vizualiser?style=flat-square&logo=github&color=yellow)](https://github.com/VishalPainjane/vizualiser/stargazers)
-<!-- [![GitHub forks](https://img.shields.io/github/forks/VishalPainjane/vizualiser?style=flat-square&logo=github&color=blue)](https://github.com/VishalPainjane/vizualiser/network/members) -->
-[![GitHub watchers](https://img.shields.io/github/watchers/VishalPainjane/vizualiser?style=flat-square&logo=github)](https://github.com/VishalPainjane/vizualiser/watchers)
-[![GitHub contributors](https://img.shields.io/github/contributors/VishalPainjane/vizualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/vizualiser/graphs/contributors)
-[![GitHub last commit](https://img.shields.io/github/last-commit/VishalPainjane/vizualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/vizualiser/commits/main)
-[![GitHub license](https://img.shields.io/github/license/VishalPainjane/vizualiser?color=blue&style=flat-square)](LICENSE)
-[![GitHub closed issues](https://img.shields.io/github/issues-closed/VishalPainjane/vizualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/vizualiser/issues?q=is%3Aissue+is%3Aclosed)
-[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/VishalPainjane/vizualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/vizualiser/pulls?q=is%3Apr+is%3Aclosed)
-<!-- 
+[![GitHub stars](https://img.shields.io/github/stars/VishalPainjane/3dNN_Visualiser?style=flat-square&logo=github&color=yellow)](https://github.com/VishalPainjane/3dNN_Visualiser/stargazers)
+
+<!-- [![GitHub forks](https://img.shields.io/github/forks/VishalPainjane/3dNN_Visualiser?style=flat-square&logo=github&color=blue)](https://github.com/VishalPainjane/3dNN_Visualiser/network/members) -->
+
+[![GitHub watchers](https://img.shields.io/github/watchers/VishalPainjane/3dNN_Visualiser?style=flat-square&logo=github)](https://github.com/VishalPainjane/3dNN_Visualiser/watchers)
+[![GitHub contributors](https://img.shields.io/github/contributors/VishalPainjane/3dNN_Visualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/3dNN_Visualiser/graphs/contributors)
+[![GitHub last commit](https://img.shields.io/github/last-commit/VishalPainjane/3dNN_Visualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/3dNN_Visualiser/commits/main)
+[![GitHub license](https://img.shields.io/github/license/VishalPainjane/3dNN_Visualiser?color=blue&style=flat-square)](LICENSE)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed/VishalPainjane/3dNN_Visualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/3dNN_Visualiser/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/VishalPainjane/3dNN_Visualiser?color=blue&style=flat-square&logo=github)](https://github.com/VishalPainjane/3dNN_Visualiser/pulls?q=is%3Apr+is%3Aclosed)
+
+<!--
 [![npm version](https://img.shields.io/npm/v/vizualiser?style=flat-square&logo=npm&color=red)](https://www.npmjs.com/package/vizualiser)
 [![npm downloads](https://img.shields.io/npm/dm/vizualiser?style=flat-square&logo=npm&color=red)](https://www.npmjs.com/package/vizualiser)
 [![Docker Pulls](https://img.shields.io/docker/pulls/vizualiser/vizualiser?style=flat-square&logo=docker&color=blue)](https://hub.docker.com/r/vizualiser/vizualiser)
@@ -64,13 +67,12 @@ Vizualiser is an open-source platform for visualizing, analyzing, and understand
 
 | Format          | Extension                    | Support       | Notes                                |
 | --------------- | ---------------------------- | ------------- | ------------------------------------ |
-| **NN3D**        | `.nn3d`, `.json`             | ✅ Full       | Native JSON format                   |
 | **ONNX**        | `.onnx`                      | ✅ Full       | Parsed directly in browser           |
-| **SafeTensors** | `.safetensors`               | ✅ Full       | LLM weights with structure inference |
-| **PyTorch**     | `.pt`, `.pth`, `.ckpt`       | ⚠️ Conversion | Use Python exporter                  |
-| **Keras/TF**    | `.h5`, `.hdf5`               | ⚠️ Conversion | Convert to ONNX first                |
-| **Binary**      | `.bin`, `.weights`           | ⚠️ Conversion | Weights only, needs model code       |
-| **Pickle**      | `.pkl`, `.pickle`, `.joblib` | ⚠️ Conversion | Use Python exporter                  |
+| **PyTorch**     | `.pt`, `.pth`, `.ckpt`       | ✅ Full       | Analyzed via Python Backend          |
+| **Keras/TF**    | `.h5`, `.hdf5`               | ✅ Full       | Analyzed via Python Backend          |
+| **TF SavedModel**| `.pb`                       | ✅ Full       | Analyzed via Python Backend          |
+
+*Note: Models without graph structure (e.g. PyTorch state_dicts) will be visualized as a 3D weight matrix.*
 
 ## ✨ Features
 
@@ -119,8 +121,8 @@ Vizualiser is an open-source platform for visualizing, analyzing, and understand
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/vizualiser.git
-cd vizualiser
+git clone https://github.com/VishalPainjane/3dNN_Visualiser.git
+cd 3dNN_Visualiser
 
 # Start with Docker Compose
 docker-compose up --build
@@ -133,8 +135,8 @@ docker-compose up --build
 Access the application:
 
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **Backend API**: http://localhost:8001
+- **API Docs**: http://localhost:8001/docs
 
 ```bash
 # Stop containers
@@ -148,17 +150,18 @@ docker-compose logs -f
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/vizualiser.git
-cd vizualiser
+git clone https://github.com/VishalPainjane/3dNN_Visualiser.git
+cd 3dNN_Visualiser
 
 # Install frontend dependencies
+cd frontend
 npm install
 
 # Start frontend development server
 npm run dev
 
 # In another terminal, start the backend
-cd backend
+cd ../backend
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
@@ -168,6 +171,7 @@ Open [http://localhost:5173](http://localhost:5173) to view the visualizer.
 ### Production Build
 
 ```bash
+cd frontend
 npm run build
 npm run preview
 ```
@@ -328,20 +332,22 @@ The `samples/` directory includes example models:
 
 ```
 vizualiser/
-├── src/
-│   ├── schema/          # .nn3d schema & types
-│   ├── core/            # State management & algorithms
-│   ├── components/
-│   │   ├── layers/      # 3D layer geometry
-│   │   ├── edges/       # Connection rendering
-│   │   ├── controls/    # Camera & interaction
-│   │   └── ui/          # UI overlays
-│   ├── App.tsx
-│   └── main.tsx
+├── backend/             # Python backend service
+├── frontend/            # React frontend application
+│   ├── src/
+│   │   ├── schema/      # .nn3d schema & types
+│   │   ├── core/        # State management & algorithms
+│   │   ├── components/
+│   │   │   ├── layers/  # 3D layer geometry
+│   │   │   ├── edges/   # Connection rendering
+│   │   │   ├── controls/# Camera & interaction
+│   │   │   └── ui/      # UI overlays
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   └── public/
 ├── exporters/
 │   └── python/          # Python export package
-├── samples/             # Example .nn3d files
-└── public/
+└── samples/             # Example .nn3d files
 ```
 
 ---
@@ -397,18 +403,18 @@ vizualiser/
 
 ## 📊 Comparison with Alternatives
 
-| Feature | Vizualiser | Netron | TensorBoard | Weights & Biases |
-|---------|-----------|--------|-------------|------------------|
-| **3D Visualization** | ✅ Advanced | ❌ | ❌ | ⚠️ Basic |
-| **Real-time Editing** | ✅ | ❌ | ❌ | ❌ |
-| **Format Support** | ✅ 10+ | ✅ 8+ | ⚠️ 3 | ⚠️ 4 |
-| **Browser-based** | ✅ | ✅ | ⚠️ Limited | ✅ |
-| **GPU Acceleration** | ✅ | ❌ | ❌ | ❌ |
-| **Collaboration** | ✅ | ❌ | ❌ | ✅ |
-| **Export Options** | ✅ 8+ formats | ⚠️ PNG | ⚠️ PNG | ⚠️ PNG |
-| **Open Source** | ✅ MIT | ✅ | ✅ Apache | ❌ |
-| **Performance (100k layers)** | ✅ 60 FPS | ⚠️ 5 FPS | N/A | N/A |
-| **Cost** | Free | Free | Free | Paid |
+| Feature                       | Vizualiser    | Netron   | TensorBoard | Weights & Biases |
+| ----------------------------- | ------------- | -------- | ----------- | ---------------- |
+| **3D Visualization**          | ✅ Advanced   | ❌       | ❌          | ⚠️ Basic         |
+| **Real-time Editing**         | ✅            | ❌       | ❌          | ❌               |
+| **Format Support**            | ✅ 10+        | ✅ 8+    | ⚠️ 3        | ⚠️ 4             |
+| **Browser-based**             | ✅            | ✅       | ⚠️ Limited  | ✅               |
+| **GPU Acceleration**          | ✅            | ❌       | ❌          | ❌               |
+| **Collaboration**             | ✅            | ❌       | ❌          | ✅               |
+| **Export Options**            | ✅ 8+ formats | ⚠️ PNG   | ⚠️ PNG      | ⚠️ PNG           |
+| **Open Source**               | ✅ MIT        | ✅       | ✅ Apache   | ❌               |
+| **Performance (100k layers)** | ✅ 60 FPS     | ⚠️ 5 FPS | N/A         | N/A              |
+| **Cost**                      | Free          | Free     | Free        | Paid             |
 
 ---
 
@@ -463,7 +469,4 @@ It helps others discover the project.
 <sub>🌟 If you like Vizualiser, give it a star on GitHub! 🌟</sub>
 </div>
 
-
-
 ---
-
