@@ -6,7 +6,7 @@ Extracts architecture information from PyTorch models for 3D visualization.
 import torch
 import torch.nn as nn
 from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from collections import OrderedDict
 import json
 
@@ -31,6 +31,7 @@ class ConnectionInfo:
     source: str
     target: str
     tensor_shape: Optional[List[int]]
+    attributes: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -401,125 +402,181 @@ def trace_model_shapes(model: nn.Module, input_tensor: torch.Tensor, arch: Model
     return arch
 
 
-def load_pytorch_model(file_path: str) -> Tuple[Optional[nn.Module], Optional[Dict], str]:
+def load_pytorch_model(file_path: str) -> Tuple[Optional[nn.Module], Optional[Dict], str, Optional[str]]:
     """
-    Load a PyTorch model from file.
+    Load a PyTorch model from file using a tiered security approach.
     
     Returns:
-        Tuple of (model, state_dict, model_type)
-        model_type can be: 'full_model', 'state_dict', 'torchscript', 'checkpoint'
+        Tuple of (model, state_dict, model_type, warning_msg)
     """
+    print(f"DEBUG: Loading PyTorch model from {file_path}", flush=True)
     try:
-        # Try loading as TorchScript first
+        # 1. Try loading as TorchScript (Safest)
         try:
+            print("DEBUG: Attempting TorchScript load...", flush=True)
             model = torch.jit.load(file_path, map_location='cpu')
-            return model, None, 'torchscript'
-        except Exception:
-            pass
+            print("DEBUG: TorchScript load successful", flush=True)
+            return model, None, 'torchscript', None
+        except Exception as e:
+            print(f"DEBUG: TorchScript load failed: {e}", flush=True)
         
-        # Try loading as regular checkpoint
+        # 2. Try loading as weights-only (Safe against RCE)
+        try:
+            print("DEBUG: Attempting weights_only load...", flush=True)
+            checkpoint = torch.load(file_path, map_location='cpu', weights_only=True)
+            print("DEBUG: weights_only load successful", flush=True)
+            return *_process_checkpoint(checkpoint), None
+        except Exception as e:
+            # If weights_only=True fails, it might be a full model object or an old format
+            print(f"DEBUG: Safe load failed, attempting full load (Caution: weights_only=False): {e}", flush=True)
+        
+        # 3. Fallback to full load (UNSAFE - allowed for compatibility)
+        # In a production environment, this should be disabled or restricted
+        print("DEBUG: Attempting full load...", flush=True)
         checkpoint = torch.load(file_path, map_location='cpu', weights_only=False)
+        print(f"DEBUG: Full load successful. Object type: {type(checkpoint)}", flush=True)
         
-        if isinstance(checkpoint, nn.Module):
-            return checkpoint, None, 'full_model'
-        
-        if isinstance(checkpoint, dict):
-            # Check for common checkpoint formats
-            if 'model' in checkpoint:
-                if isinstance(checkpoint['model'], nn.Module):
-                    return checkpoint['model'], None, 'checkpoint'
-                elif isinstance(checkpoint['model'], dict):
-                    return None, checkpoint['model'], 'state_dict'
-            
-            if 'state_dict' in checkpoint:
-                return None, checkpoint['state_dict'], 'state_dict'
-            
-            if 'model_state_dict' in checkpoint:
-                return None, checkpoint['model_state_dict'], 'state_dict'
-            
-            # Check if it's directly a state dict (contains tensor values)
-            has_tensors = any(isinstance(v, torch.Tensor) for v in checkpoint.values())
-            if has_tensors:
-                return None, checkpoint, 'state_dict'
-        
-        return None, None, 'unknown'
+        model, state, type_ = _process_checkpoint(checkpoint)
+        return model, state, type_, "Legacy Format Detected: Loaded with weights_only=False"
         
     except Exception as e:
+        print(f"ERROR: Failed to load model: {str(e)}", flush=True)
         raise ValueError(f"Failed to load model: {str(e)}")
+
+
+def _process_checkpoint(checkpoint: Any) -> Tuple[Optional[nn.Module], Optional[Dict], str]:
+    """Helper to categorize the loaded checkpoint."""
+    if isinstance(checkpoint, nn.Module):
+        print("DEBUG: Loaded object is nn.Module (Full Model)", flush=True)
+        return checkpoint, None, 'full_model'
+    
+    if isinstance(checkpoint, dict):
+        # Check for common checkpoint formats
+        if 'model' in checkpoint:
+            if isinstance(checkpoint['model'], nn.Module):
+                print("DEBUG: Found nn.Module inside checkpoint['model']", flush=True)
+                return checkpoint['model'], None, 'checkpoint'
+            elif isinstance(checkpoint['model'], dict):
+                print("DEBUG: Found state_dict inside checkpoint['model']", flush=True)
+                return None, checkpoint['model'], 'state_dict'
+        
+        if 'state_dict' in checkpoint:
+            print("DEBUG: Found state_dict inside checkpoint['state_dict']", flush=True)
+            return None, checkpoint['state_dict'], 'state_dict'
+        
+        if 'model_state_dict' in checkpoint:
+            print("DEBUG: Found state_dict inside checkpoint['model_state_dict']", flush=True)
+            return None, checkpoint['model_state_dict'], 'state_dict'
+        
+        # Check if it's directly a state dict (contains tensor values)
+        has_tensors = any(isinstance(v, torch.Tensor) for v in checkpoint.values())
+        if has_tensors:
+            print("DEBUG: Checkpoint appears to be a raw state_dict", flush=True)
+            return None, checkpoint, 'state_dict'
+    
+    print(f"DEBUG: Unknown checkpoint format. Keys: {list(checkpoint.keys()) if isinstance(checkpoint, dict) else 'N/A'}", flush=True)
+    return None, None, 'unknown'
 
 
 def analyze_state_dict(state_dict: Dict[str, torch.Tensor], model_name: str = "model") -> ModelArchitecture:
     """
-    Analyze a state dict to infer model architecture.
+    Analyze a state dict to infer model architecture with Heuristic Logic.
     
-    This extracts layer information from weight tensor names and shapes.
+    Features:
+    - Smart Grouping (Hierarchy from names)
+    - Implicit Flow (Dashed connections)
+    - Ghost Nodes (Inferred activations)
     """
+    print(f"DEBUG: Analyzing state dict with {len(state_dict)} keys", flush=True)
     layers = []
-    layer_map = OrderedDict()
+    layer_map = {} # Map id to layer object
     
-    # Group parameters by layer name
-    for key, tensor in state_dict.items():
-        if not isinstance(tensor, torch.Tensor):
+    # 1. Smart Sorting (Preserve order or sort keys)
+    # Most state_dicts are OrderedDicts or preserve insertion order
+    keys = list(state_dict.keys())
+    
+    # 2. Build Layers
+    for key in keys:
+        if "num_batches_tracked" in key:
             continue
-        
-        # Extract layer name from parameter name
-        parts = key.rsplit('.', 1)
-        if len(parts) == 2:
-            layer_name, param_type = parts
+            
+        # Parse hierarchy: "layer1.0.conv1.weight" -> base_name="layer1.0.conv1", param="weight"
+        parts = key.split('.')
+        if len(parts) > 1:
+            base_name = ".".join(parts[:-1])
+            param_type = parts[-1]
         else:
-            layer_name = key
+            base_name = key
             param_type = 'weight'
-        
-        if layer_name not in layer_map:
-            layer_map[layer_name] = {
-                'params': {},
-                'shapes': {}
-            }
-        
-        layer_map[layer_name]['params'][param_type] = True
-        layer_map[layer_name]['shapes'][param_type] = list(tensor.shape)
+            
+        # Check if layer exists
+        if base_name in layer_map:
+            # Update existing
+            layer = layer_map[base_name]
+            layer.params[param_type] = list(state_dict[key].shape)
+            # Update shape info if weight
+            if param_type == 'weight':
+                input_shape, output_shape = infer_shapes(layer.type, {'weight': list(state_dict[key].shape)}, layer.params)
+                if input_shape: layer.input_shape = input_shape
+                if output_shape: layer.output_shape = output_shape
+        else:
+            # Create new layer
+            tensor = state_dict[key]
+            shapes = {param_type: list(tensor.shape)}
+            layer_type, category = infer_layer_type(base_name, shapes)
+            
+            # Extract params from this first tensor
+            params = extract_params_from_shapes(layer_type, shapes)
+            input_shape, output_shape = infer_shapes(layer_type, shapes, params)
+            
+            # Infer parameter count
+            num_params = tensor.numel()
+            
+            new_layer = LayerInfo(
+                id=base_name,
+                name=base_name,
+                type=layer_type,
+                category=category,
+                input_shape=input_shape,
+                output_shape=output_shape,
+                params=params,
+                num_parameters=num_params,
+                trainable=True
+            )
+            
+            layer_map[base_name] = new_layer
+            layers.append(new_layer)
+            
+            # Heuristic: Ghost Node Insertion
+            # If we just added a BatchNorm, and previous was Conv, add ReLU
+            if category == 'normalization' and len(layers) > 1:
+                prev_layer = layers[-2]
+                if prev_layer.category == 'convolution':
+                    ghost_id = f"{base_name}_relu_ghost"
+                    ghost_layer = LayerInfo(
+                        id=ghost_id,
+                        name=f"{base_name}_ReLU",
+                        type='ReLU',
+                        category='activation',
+                        input_shape=output_shape,
+                        output_shape=output_shape,
+                        params={'ghost': True},
+                        num_parameters=0,
+                        trainable=False
+                    )
+                    layers.append(ghost_layer)
+                    layer_map[ghost_id] = ghost_layer
+
+    print(f"DEBUG: Finalized {len(layers)} layers (including ghosts)", flush=True)
     
-    # Create layer info from grouped parameters
-    layer_index = 0
-    for layer_name, info in layer_map.items():
-        layer_type, category = infer_layer_type(layer_name, info['shapes'])
-        
-        layer_id = f"layer_{layer_index}"
-        layer_index += 1
-        
-        # Compute number of parameters
-        num_params = 0
-        for param_type, shape in info['shapes'].items():
-            param_size = 1
-            for dim in shape:
-                param_size *= dim
-            num_params += param_size
-        
-        # Extract layer parameters from shapes
-        params = extract_params_from_shapes(layer_type, info['shapes'])
-        
-        # Infer input/output shapes
-        input_shape, output_shape = infer_shapes(layer_type, info['shapes'], params)
-        
-        layers.append(LayerInfo(
-            id=layer_id,
-            name=layer_name,
-            type=layer_type,
-            category=category,
-            input_shape=input_shape,
-            output_shape=output_shape,
-            params=params,
-            num_parameters=num_params,
-            trainable=True
-        ))
-    
-    # Create sequential connections
+    # 3. Infer Connections (Implicit Flow)
     connections = []
     for i in range(len(layers) - 1):
         connections.append(ConnectionInfo(
             source=layers[i].id,
             target=layers[i + 1].id,
-            tensor_shape=layers[i].output_shape
+            tensor_shape=layers[i].output_shape,
+            attributes={'style': 'dashed', 'implicit': True}
         ))
     
     total_params = sum(layer.num_parameters for layer in layers)
@@ -707,7 +764,8 @@ def architecture_to_dict(arch: ModelArchitecture) -> Dict[str, Any]:
             {
                 'source': conn.source,
                 'target': conn.target,
-                'tensorShape': conn.tensor_shape
+                'tensorShape': conn.tensor_shape,
+                'attributes': conn.attributes
             }
             for conn in arch.connections
         ]

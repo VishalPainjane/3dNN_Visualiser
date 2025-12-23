@@ -328,57 +328,49 @@ def infer_onnx_category(op_type: str) -> str:
 
 # Mapping of file extensions to supported frameworks
 SUPPORTED_FORMATS = {
-    # PyTorch formats
+    # Tier 1: Platinum Path (Native/Client-side preferred)
+    '.nn3d': 'nn3d',
+    '.json': 'nn3d',
+    '.onnx': 'onnx',
+    
+    # Tier 2: Gold Path (Structure Inference)
+    '.safetensors': 'safetensors',
+    '.h5': 'keras',
+    '.hdf5': 'keras',
+    '.keras': 'keras',
+    
+    # Tier 3 & 4: Silver/Bronze Path (Backend Tracing/Stack)
     '.pt': 'pytorch',
     '.pth': 'pytorch',
     '.ckpt': 'pytorch',
     '.bin': 'pytorch',
     '.model': 'pytorch',
-    # ONNX format
-    '.onnx': 'onnx',
-    # TensorFlow/Keras formats
-    '.h5': 'keras',
-    '.hdf5': 'keras',
-    '.keras': 'keras',
+    
+    # TensorFlow (Legacy)
     '.pb': 'tensorflow',
-    # SafeTensors format
-    '.safetensors': 'safetensors',
 }
 
 
-@app.post("/analyze/universal")
-async def analyze_universal(
+@app.post("/upload", response_model=AnalysisResponse)
+async def upload_model(
     file: UploadFile = File(...),
     input_shape: Optional[str] = Query(None, description="Input shape as comma-separated ints, e.g., '1,3,224,224'")
 ):
     """
-    Universal model analyzer - accepts any supported model format.
+    Universal /upload endpoint implementing the 4-Tier Pipeline Switch.
     
-    Supported formats:
-    - PyTorch: .pt, .pth, .ckpt, .bin, .model
-    - ONNX: .onnx
-    - Keras/TensorFlow: .h5, .hdf5, .keras, .pb
-    - SafeTensors: .safetensors
-    
-    Returns detailed architecture information including:
-    - Layer types and names
-    - Input/output shapes for each layer
-    - Parameter counts
-    - Layer connections
-    - Model metadata
+    Tiers:
+    1. Platinum Path (.nn3d, .onnx): Native/Zero-Latency.
+       - Ideally processed client-side. If received here, it's a fallback.
+    2. Gold Path (.safetensors, .h5): Structure Inference.
+       - Hierarchical parsing from parameter names/config.
+    3. Silver Path (.pt - JIT): Backend Tracing.
+       - Full graph extraction via TorchScript.
+    4. Bronze Path (.pt - State Dict): Stack Visualization.
+       - Weights-only, no connectivity data.
     """
     filename = file.filename or "unknown"
     file_ext = Path(filename).suffix.lower()
-    
-    # Check if format is supported
-    if file_ext not in SUPPORTED_FORMATS:
-        supported = ', '.join(sorted(SUPPORTED_FORMATS.keys()))
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file format '{file_ext}'. Supported formats: {supported}"
-        )
-    
-    framework = SUPPORTED_FORMATS[file_ext]
     
     # Parse input shape if provided
     sample_shape = None
@@ -390,29 +382,66 @@ async def analyze_universal(
                 status_code=400,
                 detail="Invalid input_shape format. Use comma-separated integers, e.g., '1,3,224,224'"
             )
-    
+
+    # The "Switch" (Detect & Dispatch)
     temp_path = None
     try:
+        print(f"INFO: Received file: {filename} ({file_ext})", flush=True)
+        
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
             content = await file.read()
             temp_file.write(content)
             temp_path = temp_file.name
         
-        # Route to appropriate analyzer based on framework
-        if framework == 'pytorch':
-            return await _analyze_pytorch(temp_path, filename, sample_shape)
-        elif framework == 'onnx':
-            return await _analyze_onnx(temp_path, filename)
-        elif framework == 'keras':
-            return await _analyze_keras(temp_path, filename)
-        elif framework == 'tensorflow':
-            return await _analyze_tensorflow(temp_path, filename)
-        elif framework == 'safetensors':
-            return await _analyze_safetensors(temp_path, filename)
+        print(f"INFO: Saved temp file to {temp_path}", flush=True)
+        
+        result = None
+        
+        # Platinum Path (.nn3d, .onnx)
+        if file_ext in ['.nn3d', '.json']:
+            print("INFO: Dispatching to NN3D analyzer", flush=True)
+            result = await _analyze_nn3d(temp_path, filename)
+        
+        elif file_ext == '.onnx':
+            print("INFO: Dispatching to ONNX analyzer", flush=True)
+            result = await _analyze_onnx(temp_path, filename)
+
+        # Gold Path (.safetensors, .h5)
+        elif file_ext in ['.safetensors']:
+            print("INFO: Dispatching to SafeTensors analyzer", flush=True)
+            result = await _analyze_safetensors(temp_path, filename)
+            
+        elif file_ext in ['.h5', '.hdf5', '.keras']:
+            print("INFO: Dispatching to Keras analyzer", flush=True)
+            result = await _analyze_keras(temp_path, filename)
+
+        # Silver & Bronze Paths (.pt, .pth, etc.)
+        elif file_ext in ['.pt', '.pth', '.ckpt', '.bin', '.model']:
+            print("INFO: Dispatching to PyTorch analyzer (Silver/Bronze path)", flush=True)
+            result = await _analyze_pytorch(temp_path, filename, sample_shape)
+            
+        # TensorFlow Legacy
+        elif file_ext == '.pb':
+            print("INFO: Dispatching to TensorFlow analyzer", flush=True)
+            result = await _analyze_tensorflow(temp_path, filename)
+
         else:
-            raise HTTPException(status_code=400, detail=f"Framework '{framework}' not yet implemented")
-    
+            supported = ', '.join(sorted(SUPPORTED_FORMATS.keys()))
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file format '{file_ext}'. Supported formats: {supported}"
+            )
+            
+        if result:
+            layer_count = len(result.architecture.get('layers', []))
+            conn_count = len(result.architecture.get('connections', []))
+            print(f"INFO: Analysis complete. Type={result.model_type}, Layers={layer_count}, Connections={conn_count}", flush=True)
+            if layer_count == 0:
+                print("WARNING: Model analyzed but 0 layers found!", flush=True)
+            
+        return result
+
     except HTTPException:
         raise
     except Exception as e:
@@ -429,10 +458,65 @@ async def analyze_universal(
                 pass
 
 
+@app.post("/analyze/universal")
+async def analyze_universal(
+    file: UploadFile = File(...),
+    input_shape: Optional[str] = Query(None, description="Input shape as comma-separated ints, e.g., '1,3,224,224'")
+):
+    """
+    Legacy alias for /upload.
+    """
+    return await upload_model(file, input_shape)
+
+
+async def _analyze_nn3d(file_path: str, filename: str) -> AnalysisResponse:
+    """Analyze NN3D/JSON native format."""
+    import json
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Basic validation: Check if it looks like NN3D
+        if 'graph' not in data or 'nodes' not in data.get('graph', {}):
+            raise ValueError("Invalid NN3D format: Missing 'graph.nodes'")
+            
+        # Extract metadata
+        metadata = data.get('metadata', {})
+        architecture = {
+            'name': metadata.get('name', Path(filename).stem),
+            'framework': metadata.get('framework', 'nn3d'),
+            'totalParameters': metadata.get('totalParams', 0),
+            'trainableParameters': metadata.get('trainableParams', 0),
+            'inputShape': metadata.get('inputShape'),
+            'outputShape': metadata.get('outputShape'),
+            'layers': [], # We don't need to convert back to "layers" for NN3D files, 
+                          # but AnalysisResponse expects 'architecture'. 
+                          # Ideally, the frontend just uses the file directly.
+            'connections': []
+        }
+        
+        # If we need to populate layers for consistency (though frontend might ignore it if it just wants the file back)
+        # But actually, if the user uploaded NN3D, they probably want it validated or re-served.
+        # For now, we'll return a success message and the raw architecture if possible, 
+        # or just the metadata.
+        
+        return AnalysisResponse(
+            success=True,
+            model_type='nn3d',
+            architecture=architecture, # Returning minimal arch as we don't need to reverse-engineer NN3D
+            message="Valid NN3D model (Platinum Path)"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Invalid NN3D file: {str(e)}")
+
+
+
 async def _analyze_pytorch(file_path: str, filename: str, sample_shape: Optional[List[int]] = None) -> AnalysisResponse:
     """Analyze PyTorch model."""
-    model, state_dict, model_type = load_pytorch_model(file_path)
+    model, state_dict, model_type, warning = load_pytorch_model(file_path)
     model_name = Path(filename).stem
+    
+    msg_suffix = f" [WARNING: {warning}]" if warning else ""
     
     if model is not None:
         architecture = analyze_model_structure(model, model_name)
@@ -449,7 +533,7 @@ async def _analyze_pytorch(file_path: str, filename: str, sample_shape: Optional
             success=True,
             model_type=model_type,
             architecture=architecture_to_dict(architecture),
-            message=f"Successfully analyzed PyTorch {model_type}"
+            message=f"Successfully analyzed PyTorch {model_type}{msg_suffix}"
         )
     
     elif state_dict is not None:
@@ -458,7 +542,7 @@ async def _analyze_pytorch(file_path: str, filename: str, sample_shape: Optional
             success=True,
             model_type='state_dict',
             architecture=architecture_to_dict(architecture),
-            message="Analyzed from state dict. Layer types inferred from weight names/shapes."
+            message=f"Analyzed from state dict. Layer types inferred from weight names/shapes.{msg_suffix}"
         )
     
     raise HTTPException(status_code=400, detail="Could not parse PyTorch model file")
